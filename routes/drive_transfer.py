@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from utils.file_transfer import stream_drive_to_gcs
+from utils.downscale_video import downscale_video
 
 drive_bp = Blueprint("drive", __name__)
 
@@ -21,7 +22,8 @@ def transfer():
         }, 400
         
     try:
-        stream_drive_to_gcs(file_id, gcs_destination_path)
+        filePathInGCS = stream_drive_to_gcs(file_id, gcs_destination_path)
+        downscale_video(filePathInGCS, "gs://downscaled-videos/processed/output.mp4")
         return jsonify({"status": "success"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
